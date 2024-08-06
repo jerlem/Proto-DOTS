@@ -72,7 +72,6 @@ namespace FPSTemplate
         /// </summary>
         public void FrameUpdate()
         {
-
             if (!IsFocused)
                 return;
 

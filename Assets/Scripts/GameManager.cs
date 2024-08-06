@@ -5,6 +5,8 @@ namespace FPSTemplate
         public static DataManager DataManager;
         public static EventManager EventManager;
 
+        public static PlayerController PlayerController;
+
         public void SetGameState(GameState state)
         {
             EventManager.GameState = state;
@@ -23,6 +25,8 @@ namespace FPSTemplate
             // Data Manager
             DataManager = new DataManager();
             DataManager.LoadData();
+
+            PlayerController = new PlayerController();
         }
 
         /// <summary>
@@ -31,6 +35,8 @@ namespace FPSTemplate
         private void Update()
         {
             EventManager.FrameUpdate();
+
+            PlayerController.FrameUpdate();
         }
 
         /// <summary>

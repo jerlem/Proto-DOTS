@@ -21,7 +21,10 @@ namespace FPSTemplate
         public float Deceleration = 1f;
         
         public float DampSpeed = 1f;
-        public float RotationSpeed = 1f;
+
+        public float VerticalSensivity = 3f;
+        public float HorizontalSensivity = 3f;
+
 
         public float RotationMaxY = 90f;
         public float RotationMinY = -90f;
