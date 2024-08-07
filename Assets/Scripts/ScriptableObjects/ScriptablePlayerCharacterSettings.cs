@@ -12,25 +12,20 @@ namespace FPSTemplate
     public class ScriptablePlayerCharacterSettings : ScriptableObject
     {
         [SerializeField]
-        public float ForwardSpeed = 1f;
-        public float SideSpeed = 1f;
-        public float BackSpeed = 1f;
 
+        [Header("Movement Settings")]
         public float MaxSpeed = 10f;
-        public float Acceleration = 1f;
-        public float Deceleration = 1f;
-        
-        public float DampSpeed = 1f;
-
-        public float VerticalSensivity = 3f;
-        public float HorizontalSensivity = 3f;
-
-
-        public float RotationMaxY = 90f;
-        public float RotationMinY = -90f;
+        public float Acceleration = 600f;
+        public float SprintMultiplier = 2f;
+        public float DampingCoefficient = 1f;
 
         public float JumpForce = 10f;
 
+        [Header("Mouse Settings")]
+        public float VerticalSensivity = 3f;
+        public float HorizontalSensivity = 3f;
+        public float RotationMaxY = 50f;
+        public float RotationMinY = -50f;
     }
 
 }
