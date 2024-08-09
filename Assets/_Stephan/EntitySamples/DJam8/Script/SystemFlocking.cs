@@ -5,10 +5,6 @@ using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.Physics;
-using Unity.Physics.Systems;
-using UnityEngine;
-
 
 // Mike's GDC Talk on 'A Data Oriented Approach to Using Component Systems'
 // is a great reference for dissecting the Boids sample code:
@@ -32,10 +28,7 @@ namespace Flocking
             var boidQuery = SystemAPI.QueryBuilder().WithAll<SharedComponentFlockingSettings>().WithAllRW<LocalToWorld>().Build();
             var targetQuery = SystemAPI.QueryBuilder().WithAll<ComponentFlockingTarget, LocalToWorld>().Build();
             var dangerQuery = SystemAPI.QueryBuilder().WithAll<ComponentFlockingDanger, LocalToWorld>().Build();
-            var obstacleQuery = SystemAPI.QueryBuilder().WithAll<ComponentFlockingObstacle, LocalToWorld, PhysicsCollider>().Build();
-
-            // New query for crawler entities
-            //var crawlerQuery = SystemAPI.QueryBuilder().WithAll<SharedComponentFlockingCrawler>().WithAllRW<LocalToWorld>().Build();//, LocalToWorld>().Build();
+            var obstacleQuery = SystemAPI.QueryBuilder().WithAll<ComponentFlockingObstacle, LocalToWorld>().Build();
 
             var dangerCount = dangerQuery.CalculateEntityCount();
             var targetCount = targetQuery.CalculateEntityCount();
@@ -94,14 +87,9 @@ namespace Flocking
                 var copyTargetPositions       = CollectionHelper.CreateNativeArray<float3, RewindableAllocator>(targetCount, ref world.UpdateAllocator);
                 var copyDangerPositions       = CollectionHelper.CreateNativeArray<float3, RewindableAllocator>(dangerCount, ref world.UpdateAllocator);
 
-                var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-                //var localToWorld = SystemAPI.GetSingleton<LocalToWorld>();
-
                 // These jobs extract the relevant position, heading component
                 // to NativeArrays so that they can be randomly accessed by the `MergeCells` and `Steer` jobs.
                 // These jobs are defined using the IJobEntity syntax.
-                // Schedule the crawling job
-
                 var initialBoidJob = new InitialPerBoidJob
                 {
                     CellAlignment = cellAlignment,
@@ -168,28 +156,8 @@ namespace Flocking
                 };
                 var steerBoidJobHandle = steerBoidJob.ScheduleParallel(boidQuery, mergeCellsJobHandle);
 
-                
-                //state.Dependency = steerBoidJobHandle;
-
-                var localToWorld = SystemAPI.GetSingleton<LocalToWorld>();
-
-                // Inserted Obstacle Avoidance Job Here
-                var avoidObstacleJob = new AvoidObstacleJob
-                {
-                    // DangerPositions = copyDangerPositions, // <-yes I code with LLM and it's garbage
-                    DeltaTime = dt,
-                    BoidPosition = localToWorld.Position,
-                    BoidRotation = localToWorld.Rotation,
-                    PhysicsWorld = physicsWorld,
-                    CurrentBoidVariant = boidSettings
-                };
-                var avoidObstacleJobHandle = avoidObstacleJob.ScheduleParallel(boidQuery, steerBoidJobHandle);
-
                 // Dispose allocated containers with dispose jobs.
-                // state.Dependency = avoidObstacleJobHandle;
-
-                // Dispose allocated containers with dispose jobs.
-                state.Dependency = JobHandle.CombineDependencies(steerBoidJobHandle, avoidObstacleJobHandle);
+                state.Dependency = steerBoidJobHandle;
 
                 // We pass the job handle and add the dependency so that we keep the proper ordering between the jobs
                 // as the looping iterates. For our purposes of execution, this ordering isn't necessary; however, without
@@ -202,8 +170,7 @@ namespace Flocking
             uniqueBoidTypes.Dispose();
         }
 
-
-        // In this sample there are 3 total unique boid variants, one for each unique value of the
+                // In this sample there are 3 total unique boid variants, one for each unique value of the
         // Boid SharedComponent (note: this includes the default uninitialized value at
         // index 0, which isnt actually used in the sample).
 
@@ -278,8 +245,6 @@ namespace Flocking
             }
         }
 
-
-
         [BurstCompile]
         partial struct InitialPerBoidJob : IJobEntity
         {
@@ -323,43 +288,6 @@ namespace Flocking
         }
 
         [BurstCompile]
-        partial struct AvoidObstacleJob : IJobEntity
-        {
-            public float DeltaTime;
-            public float3 BoidPosition;
-            public quaternion BoidRotation;
-            public Unity.Physics.PhysicsWorld PhysicsWorld;
-            public SharedComponentFlockingSettings CurrentBoidVariant;
-
-            void Execute([EntityIndexInQuery] int entityIndexInQuery, ref LocalToWorld localToWorld)
-            {
-                var forward = localToWorld.Forward;
-                //var ray = new Unity.Physics.Ray(localToWorld.Position, forward);
-
-                Unity.Physics.RaycastHit hit;
-                if (PhysicsWorld.CastRay(new Unity.Physics.RaycastInput
-                {
-                    Start = localToWorld.Position,
-                    End = localToWorld.Position + forward * CurrentBoidVariant.DangerAversionDistance,
-                    Filter = Unity.Physics.CollisionFilter.Default
-                }, out hit))
-                {
-                    // Obstacle detected within the DangerAversionDistance, steer away
-                    var hitPosition = hit.Position;
-                    var avoidDirection = math.normalizesafe(localToWorld.Position - hitPosition);
-                    var newDirection = math.normalizesafe(forward + avoidDirection * DeltaTime);
-                    localToWorld = new LocalToWorld
-                    {
-                        Value = float4x4.TRS(
-                            localToWorld.Position + newDirection * CurrentBoidVariant.MoveSpeed * DeltaTime,
-                            quaternion.LookRotationSafe(newDirection, math.up()),
-                            new float3(1.0f, 1.0f, 1.0f))
-                    };
-                }
-            }
-        }
-
-        [BurstCompile]
         partial struct SteerBoidJob : IJobEntity
         {
             [ReadOnly] public NativeArray<int> CellIndices;
@@ -374,7 +302,6 @@ namespace Flocking
             public SharedComponentFlockingSettings CurrentBoidVariant;
             public float DeltaTime;
             public float MoveDistance;
-
             void Execute([EntityIndexInQuery] int entityIndexInQuery, ref LocalToWorld localToWorld)
             {
                 // temporarily storing the values for code readability
@@ -384,10 +311,10 @@ namespace Flocking
                 var neighborCount                     = CellCount[cellIndex];
                 var alignment                         = CellAlignment[cellIndex];
                 var separation                        = CellSeparation[cellIndex];
-                var nearestDangerDistance             = CellDangerDistance[cellIndex];
-                var nearestDangerPositionIndex        = CellDangerPositionIndex[cellIndex];
+                var nearestDangerDistance           = CellDangerDistance[cellIndex];
+                var nearestDangerPositionIndex      = CellDangerPositionIndex[cellIndex];
                 var nearestTargetPositionIndex        = CellTargetPositionIndex[cellIndex];
-                var nearestDangerPosition             = DangerPositions[nearestDangerPositionIndex];
+                var nearestDangerPosition           = DangerPositions[nearestDangerPositionIndex];
                 var nearestTargetPosition             = TargetPositions[nearestTargetPositionIndex];
 
                 // Setting up the directions for the three main biocrowds influencing directions adjusted based
