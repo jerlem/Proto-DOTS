@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 1028879923444313530}
   - component: {fileID: 194331295954232777}
   - component: {fileID: 7551742430647151960}
-  - component: {fileID: -5753512659022327068}
-  - component: {fileID: 4523526315365811085}
+  - component: {fileID: -881235944587616911}
+  - component: {fileID: 1292375783074498276}
   m_Layer: 0
-  m_Name: PrefabStreumpsuleYellow
+  m_Name: PrefabStreumpsuleBlue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 32313de7c02444375be8dfb3e92e72e1, type: 2}
+  - {fileID: 2100000, guid: ce92d71cb794d4d1c9706b5be72ad8ba, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85,25 +85,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-5753512659022327068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5150075636501363818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a0c2815610b9744fb96f5a9cb0b57c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CellRadius: 8
-  SeparationWeight: 1
-  AlignmentWeight: 1
-  TargetWeight: 2
-  ObstacleAversionDistance: 30
-  MoveSpeed: 25
---- !u!136 &4523526315365811085
+--- !u!136 &-881235944587616911
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126,3 +108,21 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1292375783074498276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5150075636501363818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a0c2815610b9744fb96f5a9cb0b57c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CellRadius: 8
+  SeparationWeight: 1
+  AlignmentWeight: 1
+  TargetWeight: 2
+  ObstacleAversionDistance: 30
+  MoveSpeed: 25

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Flocking
 {
-    public class AuthoringFlockingSettings : MonoBehaviour
+    public class AuthoringHerdingSettings : MonoBehaviour
     {
         public float CellRadius = 8.0f;
         public float SeparationWeight = 1.0f;
@@ -13,16 +13,15 @@ namespace Flocking
         public float ObstacleAversionDistance = 30.0f;
         public float MoveSpeed = 25.0f;
 
-        class Boulanger : Baker<AuthoringFlockingSettings>
+        class Boulanger : Baker<AuthoringHerdingSettings>
         {
-            public override void Bake(AuthoringFlockingSettings authoring)
+            public override void Bake(AuthoringHerdingSettings authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Renderable | TransformUsageFlags.WorldSpace);
-                AddSharedComponent(entity, new SharedComponentFlockingSettings
+                AddSharedComponent(entity, new SharedComponentHerdingSettings
                 {
                     CellRadius = authoring.CellRadius,
                     SeparationWeight = authoring.SeparationWeight,
-                    AlignmentWeight = authoring.AlignmentWeight,
                     TargetWeight = authoring.TargetWeight,
                     DangerAversionDistance = authoring.ObstacleAversionDistance,
                     MoveSpeed = authoring.MoveSpeed
@@ -32,7 +31,7 @@ namespace Flocking
     }
 
     [Serializable]
-    public struct SharedComponentFlockingSettings : ISharedComponentData
+    public struct SharedComponentHerdingSettings : ISharedComponentData
     {
         public float CellRadius;
         public float SeparationWeight;
@@ -43,3 +42,4 @@ namespace Flocking
         public float MoveSpeed;
     }
 }
+
