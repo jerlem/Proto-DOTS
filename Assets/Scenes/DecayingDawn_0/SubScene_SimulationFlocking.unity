@@ -308,6 +308,54 @@ MonoBehaviour:
   m_EnableSolverStabilizationHeuristic: 0
   m_MultiThreaded: 1
   m_SynchronizeCollisionWorld: 1
+--- !u!1 &931800979
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 931800981}
+  - component: {fileID: 931800980}
+  m_Layer: 0
+  m_Name: RodStewart_0
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &931800980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 931800979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d6039f55743e1a40b43428ee7b92273, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 5480098749831327422, guid: 37dffb4505eb4cc46af0ad8e49c3ec24, type: 3}
+  numSegments: 8
+  segmentLength: 1
+  rodRadius: 0.5
+--- !u!4 &931800981
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 931800979}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &986622828
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,7 +500,7 @@ GameObject:
   - component: {fileID: 1109893931}
   - component: {fileID: 1109893930}
   m_Layer: 0
-  m_Name: Boid School 0
+  m_Name: BoidSchoolRed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -482,7 +530,7 @@ Transform:
   m_GameObject: {fileID: 1109893929}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20, y: 5, z: 540.9}
+  m_LocalPosition: {x: -280.2, y: 40, z: 300}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -763,7 +811,7 @@ GameObject:
   - component: {fileID: 1859886182}
   - component: {fileID: 1859886181}
   m_Layer: 0
-  m_Name: Boid School 1
+  m_Name: BoidSchoolYellow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -793,7 +841,7 @@ Transform:
   m_GameObject: {fileID: 1859886180}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -300.2, y: 5, z: 952.3}
+  m_LocalPosition: {x: -150, y: 100, z: 150}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -943,3 +991,4 @@ SceneRoots:
   - {fileID: 986622832}
   - {fileID: 379944381}
   - {fileID: 536854191}
+  - {fileID: 931800981}
