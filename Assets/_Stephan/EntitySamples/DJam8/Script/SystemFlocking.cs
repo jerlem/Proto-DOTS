@@ -41,18 +41,18 @@ namespace Flocking
             // Initialization Checks
             if (uniqueBoidTypes.IsEmpty)
             {
-                UnityEngine.Debug.Log("No unique boid types found. Exiting early.");
+                //UnityEngine.Debug.Log("No unique boid types found. Exiting early.");
                 return;
             }
 
             if (targetCount == 0)
             {
-                UnityEngine.Debug.Log("No targets found. Skipping target-related processing.");
+                //UnityEngine.Debug.Log("No targets found. Skipping target-related processing.");
             }
 
             if (dangerCount == 0)
             {
-                UnityEngine.Debug.Log("No dangers found. Skipping danger-related processing.");
+                //UnityEngine.Debug.Log("No dangers found. Skipping danger-related processing.");
             }
 
             // Each variant of the Boid represents a different value of the SharedComponentData and is self-contained,

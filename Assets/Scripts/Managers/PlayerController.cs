@@ -9,16 +9,30 @@ namespace FPSTemplate
     {
         bool isGrounded = true;
 
-        public float acceleration = 600f; // how fast you accelerate
-        public float accSprintMultiplier = 4; // how much faster you go when "sprinting"
+        public float acceleration = 200f; // how fast you accelerate
+        public float accSprintMultiplier = 2; // how much faster you go when "sprinting"
         public float lookSensitivity = 3f; // mouse look sensitivity
         public float dampingCoefficient = 10f; // how quickly you break to a halt after you stop your input
 
         Vector3 velocity; // current velocity
 
+        /*
+         * Player
+         */
         Quaternion Rotation;
         Vector3 Translation = Vector3.zero;
+
         GameObject playerController;
+        GameObject playerArms;
+        GameObject playerCockpit;
+
+        GameObject[] muzzleEffects;
+        FireFlame muzzleLeft;
+        FireFlame muzzleRight;
+
+        float playerArmsOffset = 0f;
+        float playerCockpitOffset = 0f;
+
         Camera playerCamera;
 
         GameObject leftWeapon;
@@ -32,7 +46,29 @@ namespace FPSTemplate
 
         public bool Active = true;
 
+        /*
+         * Head Bubbing
+         */
+        float headBubbingAmplitude = 0.01f;
+        float headBubbingFrequency = 2f;
+        float headBubbingVelocityThreshold = 0.1f;
+
+        /*
+         * Firing
+         */
         bool isFiring = false;
+
+        float minigunAceleration = 1500f;
+
+        float minigunDeceleration = 800f;
+        float minigunMaxSpeed = 3000f;
+        float minigunInertia = 5f;
+
+        float minigunCurrentSpeed = 0f;
+        float minigunTargetSpeed = 0f;
+
+        float minigunFireRate = 0.25f;
+        float minigunLastFire = 0f;
 
         public override void Init()
         {
@@ -48,6 +84,20 @@ namespace FPSTemplate
 
             leftWeapon = GameObject.Find("Left_Minigun_M-134_Guns");
             rightWeapon = GameObject.Find("Right_Minigun_M-134_Guns");
+
+            playerArms = GameObject.Find("Arms");
+            playerCockpit = GameObject.Find("Cockpit");
+
+            muzzleEffects = new GameObject[5];
+            for (int i=0; i < 5 ; i++)
+            {
+                muzzleEffects[i] = GameObject.Find("muzzleFlash" + i);
+                if (muzzleEffects[i] != null)
+                    Debug.Log("found " + muzzleEffects[i].name.ToString());
+            }
+
+            muzzleLeft = GameObject.Find("LeftMuzzle").GetComponent<FireFlame>();
+            muzzleRight = GameObject.Find("RightMuzzle").GetComponent<FireFlame>(); 
         }
 
         /// <summary>
@@ -72,7 +122,6 @@ namespace FPSTemplate
         /// <param name="y"></param>
         private void HandleMouseScroll(float y)
         {
-
         }
 
         /// <summary>
@@ -124,14 +173,54 @@ namespace FPSTemplate
 
             UpdateLookDirection();
 
+
+
             // Movement
             velocity += GetAccelerationVector() * Time.deltaTime;
             velocity = Vector3.Lerp(velocity, Vector3.zero, dampingCoefficient * Time.deltaTime);
             playerController.transform.position += velocity * Time.deltaTime;
 
-            isFiring = Input.GetMouseButtonDown(0);
+            // Firing
+            isFiring = Input.GetMouseButton(0);
 
-            if (isFiring) Fire();
+            if (isFiring)
+            {
+                minigunTargetSpeed += minigunAceleration * Time.deltaTime;
+                minigunTargetSpeed = Mathf.Clamp(minigunTargetSpeed, 0, minigunMaxSpeed);
+            }
+            else
+            {
+                minigunTargetSpeed -= minigunDeceleration * Time.deltaTime;
+                if (minigunTargetSpeed < 0)
+                    minigunTargetSpeed = 0;
+            }
+
+            minigunCurrentSpeed = Mathf.Lerp(minigunCurrentSpeed, minigunTargetSpeed, minigunInertia * Time.deltaTime);
+
+            if (minigunCurrentSpeed > 200 & isFiring)
+            {
+                minigunLastFire += Time.deltaTime;
+
+                if (minigunLastFire >= minigunFireRate)
+                {
+                    minigunLastFire = 0;
+                    Fire();
+                }
+                
+
+            }
+            leftWeapon.transform.Rotate(Vector3.up * -minigunCurrentSpeed * Time.deltaTime);
+            rightWeapon.transform.Rotate(Vector3.up * minigunCurrentSpeed * Time.deltaTime);
+        }
+
+        float GetHeadBubbingOffset(float velocity, float h)
+        {
+            float offset = 0;
+
+            if (velocity >= headBubbingVelocityThreshold)
+                offset = h + Mathf.Sin(Time.time * headBubbingFrequency) * headBubbingAmplitude;
+
+            return offset;
         }
 
         Vector3 GetAccelerationVector()
@@ -148,9 +237,6 @@ namespace FPSTemplate
             AddMovement(KeyCode.A, Vector3.left);
             AddMovement(KeyCode.S, Vector3.back);
             AddMovement(KeyCode.D, Vector3.right);
-
-            //AddMovement(KeyCode.Space, Vector3.up);
-            //AddMovement(KeyCode.LeftControl, Vector3.down);
 
             Vector3 direction = new Vector3(moveInput.x, 0f, moveInput.z).normalized;
 
@@ -175,7 +261,6 @@ namespace FPSTemplate
 
             playerCamera.transform.localRotation = Quaternion.Euler(-rotationX, 0f, 0f);
             playerController.transform.localRotation = Quaternion.Euler(0f, rotationY, 0f);
-
         }
 
 
@@ -191,9 +276,8 @@ namespace FPSTemplate
 
         public void Fire()
         {
-            Debug.Log("Fire");
-            leftWeapon.transform.Rotate(Vector3.up * 100 * Time.deltaTime);
-            rightWeapon.transform.Rotate(Vector3.up * 100 * Time.deltaTime);
+            muzzleLeft.Fire();
+            muzzleRight.Fire();
         }
 
         public override void Dispose()
