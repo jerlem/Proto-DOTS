@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 986622830}
   - component: {fileID: 986622829}
   - component: {fileID: 986622833}
+  - component: {fileID: 986622834}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -185,7 +186,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0716810e475f6774ea17b3227093f37e, type: 2}
+  - {fileID: 2100000, guid: 06a800d1c1683514d99f3825d9e1857a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -242,6 +243,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b34bfe49eb4f454c985c0ff17f019f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &986622834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986622828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7473baa58b85f14ab83fc18f2a35cb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1109893929
 GameObject:
   m_ObjectHideFlags: 0
@@ -283,7 +296,7 @@ Transform:
   m_GameObject: {fileID: 1109893929}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20, y: 5, z: 120}
+  m_LocalPosition: {x: 20, y: 5, z: 540.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -441,7 +454,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1472349999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -584,7 +597,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Prefab: {fileID: 5150075636501363818, guid: 01dbca15c8da5e04687af0a1c9eff7eb, type: 3}
   InitialRadius: 15
-  Count: 600
+  Count: 3200
 --- !u!4 &1859886182
 Transform:
   m_ObjectHideFlags: 0
@@ -594,7 +607,7 @@ Transform:
   m_GameObject: {fileID: 1859886180}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -40, y: 5, z: 120}
+  m_LocalPosition: {x: -300.2, y: 5, z: 952.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -620,7 +633,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1992226673
 MonoBehaviour:
   m_ObjectHideFlags: 0

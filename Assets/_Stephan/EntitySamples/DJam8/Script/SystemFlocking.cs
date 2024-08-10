@@ -2,9 +2,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Burst;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Physics;
+using Unity.Physics.Systems;
 
 // Mike's GDC Talk on 'A Data Oriented Approach to Using Component Systems'
 // is a great reference for dissecting the Boids sample code:
@@ -87,6 +88,8 @@ namespace Flocking
                 var copyTargetPositions       = CollectionHelper.CreateNativeArray<float3, RewindableAllocator>(targetCount, ref world.UpdateAllocator);
                 var copyDangerPositions       = CollectionHelper.CreateNativeArray<float3, RewindableAllocator>(dangerCount, ref world.UpdateAllocator);
 
+                var physicsWorld              = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+
                 // These jobs extract the relevant position, heading component
                 // to NativeArrays so that they can be randomly accessed by the `MergeCells` and `Steer` jobs.
                 // These jobs are defined using the IJobEntity syntax.
@@ -132,7 +135,7 @@ namespace Flocking
                     cellTargetPositionIndex   = cellTargetPositionIndex,
                     cellCount                 = cellCount,
                     targetPositions           = copyTargetPositions,
-                    obstaclePositions         = copyDangerPositions
+                    dangerPositions           = copyDangerPositions
                 };
                 var mergeCellsJobHandle = mergeCellsJob.Schedule(hashMap, 64, mergeCellsBarrierJobHandle);
 
@@ -156,8 +159,39 @@ namespace Flocking
                 };
                 var steerBoidJobHandle = steerBoidJob.ScheduleParallel(boidQuery, mergeCellsJobHandle);
 
+                var localToWorld = SystemAPI.GetSingleton<LocalToWorld>();
+
+                // Inserted Obstacle Avoidance Job Here
+                var avoidObstacleJob = new AvoidObstacleJob
+                {
+                    // DangerPositions = copyDangerPositions, // <-yes I code with LLM and it's garbage
+                    DeltaTime = dt,
+                    BoidPosition = localToWorld.Position,
+                    BoidRotation = localToWorld.Rotation,
+                    PhysicsWorld = physicsWorld,
+                    CurrentBoidVariant = boidSettings
+                };
+                var avoidObstacleJobHandle = avoidObstacleJob.ScheduleParallel(boidQuery, steerBoidJobHandle);
+
+                // Inserted Terrain Avoidance Job Here
+                var avoidTerrainJob = new AvoidTerrainJob
+                {
+                    DeltaTime = dt,
+                    PhysicsWorld = physicsWorld,
+                    CurrentBoidVariant = boidSettings
+                };
+                var avoidTerrainJobHandle = avoidTerrainJob.ScheduleParallel(boidQuery, avoidObstacleJobHandle);
+
+                // Combine all job dependencies
+                // Combine all job dependencies
+                var finalJobHandle = JobHandle.CombineDependencies(steerBoidJobHandle, avoidObstacleJobHandle, avoidTerrainJobHandle);
+                //var finalJobHandle = JobHandle.CombineDependencies(steerBoidJobHandle, avoidTerrainJobHandle);
+
+                // Complete the combined job handle
+                finalJobHandle.Complete();
+
                 // Dispose allocated containers with dispose jobs.
-                state.Dependency = steerBoidJobHandle;
+                state.Dependency = finalJobHandle;
 
                 // We pass the job handle and add the dependency so that we keep the proper ordering between the jobs
                 // as the looping iterates. For our purposes of execution, this ordering isn't necessary; however, without
@@ -170,7 +204,7 @@ namespace Flocking
             uniqueBoidTypes.Dispose();
         }
 
-                // In this sample there are 3 total unique boid variants, one for each unique value of the
+        // In this sample there are 3 total unique boid variants, one for each unique value of the
         // Boid SharedComponent (note: this includes the default uninitialized value at
         // index 0, which isnt actually used in the sample).
 
@@ -196,7 +230,7 @@ namespace Flocking
             public NativeArray<int>                 cellTargetPositionIndex;
             public NativeArray<int>                 cellCount;
             [ReadOnly] public NativeArray<float3>   targetPositions;
-            [ReadOnly] public NativeArray<float3>   obstaclePositions;
+            [ReadOnly] public NativeArray<float3>   dangerPositions;
 
             void NearestPosition(NativeArray<float3> targets, float3 position, out int nearestPositionIndex, out float nearestDistance)
             {
@@ -221,7 +255,7 @@ namespace Flocking
 
                 int obstaclePositionIndex;
                 float obstacleDistance;
-                NearestPosition(obstaclePositions, position, out obstaclePositionIndex, out obstacleDistance);
+                NearestPosition(dangerPositions, position, out obstaclePositionIndex, out obstacleDistance);
                 cellDangerPositionIndex[index] = obstaclePositionIndex;
                 cellDangerDistance[index]      = obstacleDistance;
 
@@ -364,6 +398,76 @@ namespace Flocking
                         quaternion.LookRotationSafe(nextHeading, math.up()),
                         new float3(1.0f, 1.0f, 1.0f))
                 };
+            }
+        }
+
+        [BurstCompile]
+        partial struct AvoidObstacleJob : IJobEntity
+        {
+            public float DeltaTime;
+            public float3 BoidPosition;
+            public quaternion BoidRotation;
+            [ReadOnly] public Unity.Physics.PhysicsWorld PhysicsWorld;
+            public SharedComponentFlockingSettings CurrentBoidVariant;
+
+            void Execute([EntityIndexInQuery] int entityIndexInQuery, ref LocalToWorld localToWorld)
+            {
+                var forward = localToWorld.Forward;
+
+                Unity.Physics.RaycastHit hit;
+                if (PhysicsWorld.CastRay(new Unity.Physics.RaycastInput
+                {
+                    Start = localToWorld.Position,
+                    End = localToWorld.Position + forward * CurrentBoidVariant.DangerAversionDistance,
+                    Filter = Unity.Physics.CollisionFilter.Default
+                }, out hit))
+                {
+                    // Obstacle detected within the DangerAversionDistance, steer away
+                    var hitPosition = hit.Position;
+                    var avoidDirection = math.normalizesafe(localToWorld.Position - hitPosition);
+                    var newDirection = math.normalizesafe(forward + avoidDirection * DeltaTime);
+                    localToWorld = new LocalToWorld
+                    {
+                        Value = float4x4.TRS(
+                            localToWorld.Position + newDirection * CurrentBoidVariant.MoveSpeed * DeltaTime,
+                            quaternion.LookRotationSafe(newDirection, math.up()),
+                            new float3(1.0f, 1.0f, 1.0f))
+                    };
+                }
+            }
+        }
+
+        [BurstCompile]
+        partial struct AvoidTerrainJob : IJobEntity
+        {
+            public float DeltaTime;
+            [ReadOnly] public Unity.Physics.PhysicsWorld PhysicsWorld;
+            public SharedComponentFlockingSettings CurrentBoidVariant;
+
+            void Execute([EntityIndexInQuery] int entityIndexInQuery, ref LocalToWorld localToWorld)
+            {
+                var position = localToWorld.Position;
+                var forward = localToWorld.Forward;
+
+                // Perform a raycast downwards to check for terrain intersection
+                Unity.Physics.RaycastHit hit;
+                if (PhysicsWorld.CastRay(new Unity.Physics.RaycastInput
+                {
+                    Start = position,
+                    End = position - new float3(0, CurrentBoidVariant.TerrainAvoidanceDistance, 0),
+                    Filter = Unity.Physics.CollisionFilter.Default
+                }, out hit))
+                {
+                    // Terrain detected below the boid, adjust position to be just above the terrain
+                    var newPosition = hit.Position + new float3(0, CurrentBoidVariant.BoidHeightAboveTerrain, 0);
+                    localToWorld = new LocalToWorld
+                    {
+                        Value = float4x4.TRS(
+                            newPosition,
+                            quaternion.LookRotationSafe(forward, math.up()),
+                            new float3(1.0f, 1.0f, 1.0f))
+                    };
+                }
             }
         }
     }

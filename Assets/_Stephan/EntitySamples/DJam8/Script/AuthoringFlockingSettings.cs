@@ -12,6 +12,8 @@ namespace Flocking
         public float TargetWeight = 2.0f;
         public float ObstacleAversionDistance = 30.0f;
         public float MoveSpeed = 25.0f;
+        public float TerrainAvoidanceDistance = 10.0f;
+        public float BoidHeightAboveTerrain = 12.0f;
 
         class Boulanger : Baker<AuthoringFlockingSettings>
         {
@@ -25,7 +27,9 @@ namespace Flocking
                     AlignmentWeight = authoring.AlignmentWeight,
                     TargetWeight = authoring.TargetWeight,
                     DangerAversionDistance = authoring.ObstacleAversionDistance,
-                    MoveSpeed = authoring.MoveSpeed
+                    MoveSpeed = authoring.MoveSpeed,
+                    TerrainAvoidanceDistance = authoring.TerrainAvoidanceDistance,
+                    BoidHeightAboveTerrain = authoring.BoidHeightAboveTerrain
                 });
             }
         }
@@ -40,5 +44,7 @@ namespace Flocking
         public float TargetWeight;
         public float DangerAversionDistance;
         public float MoveSpeed;
+        public float TerrainAvoidanceDistance;
+        public float BoidHeightAboveTerrain;
     }
 }

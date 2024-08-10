@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace FPSTemplate
 {
     public class GameManager : GameSingleton
@@ -51,7 +53,14 @@ namespace FPSTemplate
         /// </summary>
         public override void Dispose()
         {
-            EventManager.OnDataManagerLoaded -= DataManagerLoaded;
+            if (EventManager != null)
+            {
+                EventManager.OnDataManagerLoaded -= DataManagerLoaded;
+            }
+            else
+            {
+                Debug.LogWarning("EventManager is null. It might not have been initialized properly.");
+            }
             base.Dispose();
         }
     }
