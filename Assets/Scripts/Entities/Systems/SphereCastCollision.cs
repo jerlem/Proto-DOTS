@@ -1,3 +1,4 @@
+using Flocking;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -11,7 +12,7 @@ public partial struct ISystemSphereCast : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<TagFlyingCube>();
+        state.RequireForUpdate<SharedComponentFlockingSettings>();
     }
 
     public unsafe Entity SphereCast(float3 RayFrom, float3 RayTo, float radius)
@@ -19,6 +20,7 @@ public partial struct ISystemSphereCast : ISystem
         // create builder, make query for collision world
         // then dispose query
         EntityQueryBuilder builder = new EntityQueryBuilder(Allocator.Temp).WithAll<PhysicsWorldSingleton>();
+
         EntityQuery query = World.DefaultGameObjectInjectionWorld.EntityManager.CreateEntityQuery(builder);
 
         CollisionWorld collisionWorld = query.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
