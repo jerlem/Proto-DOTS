@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 194331295954232777}
   - component: {fileID: 7551742430647151960}
   - component: {fileID: -5753512659022327068}
-  - component: {fileID: 4523526315365811085}
   m_Layer: 0
   m_Name: PrefabStreumpsuleYellow
   m_TagString: Untagged
@@ -63,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 32313de7c02444375be8dfb3e92e72e1, type: 2}
+  - {fileID: 2100000, guid: 2dfef2fc7e33b6544b5f039e960a6596, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -103,26 +102,3 @@ MonoBehaviour:
   TargetWeight: 2
   ObstacleAversionDistance: 30
   MoveSpeed: 25
---- !u!136 &4523526315365811085
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5150075636501363818}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}

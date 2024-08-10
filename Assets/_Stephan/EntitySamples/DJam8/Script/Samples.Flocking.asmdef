@@ -1,5 +1,5 @@
 {
-    "name": "Flocking",
+    "name": "Samples.Flocking",
     "rootNamespace": "",
     "references": [
         "Unity.Entities",
@@ -11,8 +11,7 @@
         "Unity.Burst",
         "Unity.Mathematics",
         "Unity.Mathematics.Extensions",
-        "Unity.Mathematics.Extensions.Hybrid",
-        "Unity.Physics"
+        "Unity.Mathematics.Extensions.Hybrid"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

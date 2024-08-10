@@ -39,7 +39,6 @@ namespace Flocking
         public float AlignmentWeight;
         public float TargetWeight;
         public float DangerAversionDistance;
-        public float AvoidanceRadius;
         public float MoveSpeed;
     }
 }

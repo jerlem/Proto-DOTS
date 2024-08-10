@@ -11,10 +11,9 @@ GameObject:
   - component: {fileID: 1028879923444313530}
   - component: {fileID: 194331295954232777}
   - component: {fileID: 7551742430647151960}
-  - component: {fileID: -881235944587616911}
-  - component: {fileID: 5153004675109587278}
+  - component: {fileID: -5753512659022327068}
   m_Layer: 0
-  m_Name: PrefabWalkerTexasRanger
+  m_Name: PrefabStreumpsuleRed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5150075636501363818}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &7551742430647151960
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -63,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7a10644340daab342855279ec90808ea, type: 2}
+  - {fileID: 2100000, guid: 924be86604723ce48a3f581aaf9ee634, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -85,30 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &-881235944587616911
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5150075636501363818}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5153004675109587278
+--- !u!114 &-5753512659022327068
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -117,7 +93,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5150075636501363818}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc49c4f25fa069a43866093ddcba50d9, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a0c2815610b9744fb96f5a9cb0b57c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   CellRadius: 8
