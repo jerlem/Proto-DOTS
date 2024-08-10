@@ -15,7 +15,7 @@ namespace SlimUI.ModernMenu{
         [Tooltip("THe first list of buttons")]
         public GameObject firstMenu;
         [Tooltip("The Menu for when the PLAY button is clicked")]
-        public GameObject playMenu;
+        public GameObject settingsMenu;
         [Tooltip("The Menu for when the EXIT button is clicked")]
         public GameObject exitMenu;
         [Tooltip("Optional 4th Menu")]
@@ -65,7 +65,7 @@ namespace SlimUI.ModernMenu{
 
         [Header("LOADING SCREEN")]
 		[Tooltip("If this is true, the loaded scene won't load until receiving user input")]
-		public bool waitForInput = true;
+		public bool waitForInput = false;
         public GameObject loadingMenu;
 		[Tooltip("The loading bar Slider UI element in the Loading Screen")]
         public Slider loadingBar;
@@ -83,7 +83,7 @@ namespace SlimUI.ModernMenu{
 		void Start(){
 			CameraObject = transform.GetComponent<Animator>();
 
-			playMenu.SetActive(false);
+			settingsMenu.SetActive(false);
 			exitMenu.SetActive(false);
 			if(extrasMenu) extrasMenu.SetActive(false);
 			firstMenu.SetActive(true);
@@ -117,22 +117,34 @@ namespace SlimUI.ModernMenu{
 			}
 		}
 
-		public void PlayCampaign(){
+		public void ToogleFullScreen()
+		{
+            // Toggle fullscreen
+            Screen.fullScreen = !Screen.fullScreen;
+        }
+
+		public void StartGame()
+		{
+            DisablePanels();
+            LoadScene("DecayingDawn_0");
+        }
+
+        public void ShowSettings()
+		{
 			exitMenu.SetActive(false);
-			if(extrasMenu) extrasMenu.SetActive(false);
-			playMenu.SetActive(true);
+			settingsMenu.SetActive(true);
 		}
 		
 		public void PlayCampaignMobile(){
 			exitMenu.SetActive(false);
-			if(extrasMenu) extrasMenu.SetActive(false);
-			playMenu.SetActive(true);
+			
+			settingsMenu.SetActive(true);
 			mainMenu.SetActive(false);
 		}
 
 		public void ReturnMenu(){
-			playMenu.SetActive(false);
-			if(extrasMenu) extrasMenu.SetActive(false);
+			settingsMenu.SetActive(false);
+			
 			exitMenu.SetActive(false);
 			mainMenu.SetActive(true);
 		}
@@ -143,8 +155,8 @@ namespace SlimUI.ModernMenu{
 			}
 		}
 
-		public void  DisablePlayCampaign(){
-			playMenu.SetActive(false);
+		public void DisablePlayCampaign(){
+			settingsMenu.SetActive(false);
 		}
 
 		public void Position2(){
@@ -179,7 +191,7 @@ namespace SlimUI.ModernMenu{
 			DisablePanels();
 			PanelGame.SetActive(true);
 			lineGame.SetActive(true);
-		}
+        }
 
 		public void VideoPanel(){
 			DisablePanels();
@@ -248,7 +260,7 @@ namespace SlimUI.ModernMenu{
 		}
 
 		public void ExtrasMenu(){
-			playMenu.SetActive(false);
+			settingsMenu.SetActive(false);
 			if(extrasMenu) extrasMenu.SetActive(true);
 			exitMenu.SetActive(false);
 		}
@@ -264,22 +276,22 @@ namespace SlimUI.ModernMenu{
 		// Load Bar synching animation
 		IEnumerator LoadAsynchronously(string sceneName){ // scene name is just the name of the current scene being loaded
 			AsyncOperation operation = SceneManager.LoadSceneAsync(sceneName);
-			operation.allowSceneActivation = false;
+			operation.allowSceneActivation = true;
 			mainCanvas.SetActive(false);
 			loadingMenu.SetActive(true);
 
-			while (!operation.isDone){
+			while (!operation.isDone)
+			{
 				float progress = Mathf.Clamp01(operation.progress / .95f);
 				loadingBar.value = progress;
 
-				if (operation.progress >= 0.9f && waitForInput){
-					loadPromptText.text = "Press " + userPromptKey.ToString().ToUpper() + " to continue";
+				if (operation.progress >= 0.9f && waitForInput)
+				{
 					loadingBar.value = 1;
-
-					if (Input.GetKeyDown(userPromptKey)){
-						operation.allowSceneActivation = true;
-					}
-                }else if(operation.progress >= 0.9f && !waitForInput){
+					operation.allowSceneActivation = true;
+					
+                }
+				else if(operation.progress >= 0.9f && !waitForInput){
 					operation.allowSceneActivation = true;
 				}
 
