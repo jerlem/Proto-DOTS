@@ -1,4 +1,5 @@
 using Flocking;
+using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -9,6 +10,9 @@ using Unity.Transforms;
 
 partial struct SystemShootExplosion : ISystem
 {
+
+    private const float explosionRange = 5f;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -20,29 +24,77 @@ partial struct SystemShootExplosion : ISystem
     {
         var flockingLifeQuery = state.GetEntityQuery(ComponentType.ReadWrite<ComponentFlockingLife>(), ComponentType.ReadWrite<LocalToWorld>());
 
-        var entities = flockingLifeQuery.ToEntityArray(Allocator.Temp);
+        NativeArray<Entity> entities = flockingLifeQuery.ToEntityArray(Allocator.Temp);
         var flockingLifes = flockingLifeQuery.ToComponentDataArray<ComponentFlockingLife>(state.WorldUpdateAllocator);
         var localToWorlds = flockingLifeQuery.ToComponentDataArray<LocalToWorld>(state.WorldUpdateAllocator);
 
-        var markedForDeathEntities = new NativeArray<Entity>(entities.Length, Allocator.Temp);
+        var flockingLifeEntities = new NativeArray<Entity>(entities.Length, Allocator.Temp);
+
+        int i = 0;
+        foreach (var e in flockingLifes)
+        {
+            if (e.BIsMarkedForDeath)
+                flockingLifeEntities[i] = entities[i];
+            else
+                flockingLifeEntities[i] = Entity.Null;
+
+            i++;
+        }
+
+        // trigger marked for death on an entity
+        // then destroy other entities in an Area
+        int triggeredIndex = 0;
+        foreach (Entity triggeredEntity in flockingLifeEntities)
+        {
+            float3 triggeredEntityPosition = localToWorlds[triggeredIndex].Position;
+
+            int max = 0;
+            foreach (var (localToWorld, flockingLife, entity) in
+                    SystemAPI.Query<RefRO<LocalToWorld>, RefRO<ComponentFlockingLife>>().WithEntityAccess())
+            {
+                float dist = math.distance(triggeredEntityPosition, localToWorld.ValueRO.Position);
+                if (dist < explosionRange)
+                    max++;
+            }
+
+            var finalDestroy = new NativeArray<Entity>(max, Allocator.Temp);
+
+            foreach (var (localToWorld, flockingLife, entity) in
+                    SystemAPI.Query<RefRO<LocalToWorld>, RefRO<ComponentFlockingLife>>().WithEntityAccess())
+            {
+                float dist = math.distance(triggeredEntityPosition, localToWorld.ValueRO.Position);
+
+                if (dist < explosionRange)
+                {
+                    UnityEngine.Debug.Log($"DestroyEntity at {localToWorld.ValueRO.Position}");
+                    finalDestroy[i] = entity;
+
+                    state.EntityManager.DestroyEntity(finalDestroy);
+                }
+            }
+
+
+        }
+
 
         var isMarkedforDeathJob = new IsMarkedForDeathJob
         {
             Entities = entities,
             FlockingLifes = flockingLifes,
-            MarkedForDeathEntities = markedForDeathEntities
+            MarkedForDeathEntities = flockingLifeEntities
         };
+
         isMarkedforDeathJob.Schedule(entities.Length, 64).Complete();
 
         var explosionJob = new ExplosionAtFlockJob
         {
             Entities = entities,
             LocalToWorlds = localToWorlds,
-            MarkedForDeathEntities = markedForDeathEntities
+            MarkedForDeathEntities = flockingLifeEntities
         };
-        explosionJob.Schedule(markedForDeathEntities.Length, 64).Complete();
+        explosionJob.Schedule(flockingLifeEntities.Length, 64).Complete();
 
-        markedForDeathEntities.Dispose();
+        flockingLifeEntities.Dispose();
     }
 
     [BurstCompile]
