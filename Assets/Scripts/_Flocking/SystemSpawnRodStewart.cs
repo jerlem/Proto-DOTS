@@ -22,7 +22,7 @@ namespace Flocking
         public void OnUpdate(ref SystemState state)
         {
             var localToWorldLookup = SystemAPI.GetComponentLookup<LocalToWorld>();
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = new EntityCommandBuffer(Allocator.TempJob); // Use TempJob for command buffer to avoid issues with EntityCommandBuffer and jobs.
             var world = state.World.Unmanaged;
 
             foreach (var (rodComponent, entity) in
@@ -36,6 +36,7 @@ namespace Flocking
                 // Buffer the instantiation of entities
                 ecb.Instantiate(rodComponent.ValueRO.Prefab, rodEntities);
 
+                // Schedule a job but don't complete it here
                 var setRodLocalToWorldJob = new SetRodLocalToWorld
                 {
                     LocalToWorldFromEntity = localToWorldLookup,
@@ -44,12 +45,15 @@ namespace Flocking
                     RodRadius = rodComponent.ValueRO.RodRadius,
                     SegmentLength = rodComponent.ValueRO.SegmentLength
                 };
+
+                // Schedule the job with a dependency on the EntityCommandBuffer playback
                 state.Dependency = setRodLocalToWorldJob.Schedule(rodComponent.ValueRO.NumSegments, 64, state.Dependency);
-                state.Dependency.Complete();
+                state.Dependency.Complete(); // Ensure job is completed before playback
             }
 
             // Play back the entity command buffer
             ecb.Playback(state.EntityManager);
+            ecb.Dispose(); // Dispose the EntityCommandBuffer after playback
             state.EntityManager.RemoveComponent<LocalTransform>(_rodQuery);
         }
 
@@ -61,12 +65,13 @@ namespace Flocking
 
         //    foreach (var (rodComponent, entity) in
         //             SystemAPI.Query<RefRO<ComponentRodStewartPieceOfEight>>()
-        //             .WithEntityAccess())
+        //                 .WithEntityAccess())
         //    {
         //        var rodEntities =
         //            CollectionHelper.CreateNativeArray<Entity, RewindableAllocator>(rodComponent.ValueRO.NumSegments,
         //                ref world.UpdateAllocator);
 
+        //        // Buffer the instantiation of entities
         //        ecb.Instantiate(rodComponent.ValueRO.Prefab, rodEntities);
 
         //        var setRodLocalToWorldJob = new SetRodLocalToWorld
@@ -81,7 +86,9 @@ namespace Flocking
         //        state.Dependency.Complete();
         //    }
 
+        //    // Play back the entity command buffer
         //    ecb.Playback(state.EntityManager);
+        //    state.EntityManager.RemoveComponent<LocalTransform>(_rodQuery);
         //}
     }
 
