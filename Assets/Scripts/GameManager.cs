@@ -28,7 +28,6 @@ namespace FPSTemplate
                 GameManager.PlayerController.Active = false;
                 GameManager.UIManager.ShowGameOver();
             }
-
         }
 
         /// <summary>
@@ -74,6 +73,19 @@ namespace FPSTemplate
         public void DamageRod(int rodId, int damage)
         {
             UIManager.RodList[rodId].Hp -= damage;
+
+            if (UIManager.RodsDetroyed())
+            {
+                SetGameState(GameState.GameOver);
+            }
+        }
+
+        public void SetRodHP(int index, float value)
+        {
+            if (index > 4)
+                return;
+
+            UIManager.RodList[index].Hp = (int)value * 100;
 
             if (UIManager.RodsDetroyed())
             {
