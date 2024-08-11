@@ -17,8 +17,7 @@ namespace FPSTemplate
         // check for first key pressed
         bool hasMoved = false;
 
-
-        public void SetGameState(GameState state)
+        public static void SetGameState(GameState state)
         {
             Debug.Log("Game state changed to : " + state);
             EventManager.GameState = state;
@@ -75,12 +74,10 @@ namespace FPSTemplate
             UIManager.RodList[rodId].Hp -= damage;
 
             if (UIManager.RodsDetroyed())
-            {
                 SetGameState(GameState.GameOver);
-            }
         }
 
-        public void SetRodHP(int index, float value)
+        public static void SetRodHP(int index, float value)
         {
             if (index > 4)
                 return;
@@ -88,9 +85,7 @@ namespace FPSTemplate
             UIManager.RodList[index].Hp = (int)value * 100;
 
             if (UIManager.RodsDetroyed())
-            {
                 SetGameState(GameState.GameOver);
-            }
         }
 
         public void KeyPressed(KeyCode keyCode)
