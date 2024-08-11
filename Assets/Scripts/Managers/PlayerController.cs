@@ -61,9 +61,9 @@ namespace FPSTemplate
 
         float minigunAceleration = 1500f;
 
-        float minigunDeceleration = 800f;
+        float minigunDeceleration = 2000f;
         float minigunMaxSpeed = 3000f;
-        float minigunInertia = 5f;
+        float minigunInertia = 2f;
 
         float minigunCurrentSpeed = 0f;
         float minigunTargetSpeed = 0f;
@@ -174,8 +174,6 @@ namespace FPSTemplate
 
             UpdateLookDirection();
 
-
-
             // Movement
             velocity += GetAccelerationVector() * Time.deltaTime;
             velocity = Vector3.Lerp(velocity, Vector3.zero, dampingCoefficient * Time.deltaTime);
@@ -207,9 +205,9 @@ namespace FPSTemplate
                     minigunLastFire = 0;
                     Fire();
                 }
-                
-
+               
             }
+
             leftWeapon.transform.Rotate(Vector3.up * -minigunCurrentSpeed * Time.deltaTime);
             rightWeapon.transform.Rotate(Vector3.up * minigunCurrentSpeed * Time.deltaTime);
         }

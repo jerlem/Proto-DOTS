@@ -119,12 +119,9 @@ namespace SlimUI.ModernMenu{
 			}
 		}
 
-		public void ToogleFullScreen()
-		{
-            Screen.fullScreen = !Screen.fullScreen;
-        }
+        public void ToogleFullScreen() => Screen.fullScreen = !Screen.fullScreen;
 
-		public void StartGame()
+        public void StartGame()
 		{
             DisablePanels();
             LoadScene("DecayingDawn_0");

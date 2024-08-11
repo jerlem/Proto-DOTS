@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace FPSTemplate
 {
@@ -10,13 +9,26 @@ namespace FPSTemplate
         public static EventManager EventManager;
 
         public static PlayerController PlayerController;
+        public static UIManager UIManager;
 
         public bool CtrlPressed { get; private set; } = false;
-        public bool AltPressed { get; private set; } = false; 
+        public bool AltPressed { get; private set; } = false;
+
+        // check for first key pressed
+        bool hasMoved = false;
+
 
         public void SetGameState(GameState state)
         {
+            Debug.Log("Game state changed to : " + state);
             EventManager.GameState = state;
+
+            if(state == GameState.GameOver)
+            {
+                GameManager.PlayerController.Active = false;
+                GameManager.UIManager.ShowGameOver();
+            }
+
         }
 
         /// <summary>
@@ -37,6 +49,9 @@ namespace FPSTemplate
             DataManager.LoadData();
 
             PlayerController = new PlayerController();
+
+            // UI Manager
+            UIManager = new UIManager();
         }
 
         /// <summary>
@@ -56,8 +71,26 @@ namespace FPSTemplate
         {
         }
 
+        public void DamageRod(int rodId, int damage)
+        {
+            UIManager.RodList[rodId].Hp -= damage;
+
+            if (UIManager.RodsDetroyed())
+            {
+                SetGameState(GameState.GameOver);
+            }
+        }
+
         public void KeyPressed(KeyCode keyCode)
         {
+            if (!hasMoved)
+            {
+                hasMoved = true;
+                GameManager.UIManager.HideObjective();
+            }
+
+            GameState state = GameManager.EventManager.GameState;
+
             if (keyCode == KeyCode.LeftControl || keyCode == KeyCode.RightControl)
                 CtrlPressed = true;
 
@@ -67,9 +100,26 @@ namespace FPSTemplate
             if (keyCode == KeyCode.Escape)
                 ReturnToMainMenu();
 
+            // TEST
+            //if (keyCode == KeyCode.F)
+            //{
+            //    DamageRod(0, 5);
+            //    DamageRod(1, 5);
+            //    DamageRod(2, 5);
+            //    DamageRod(3, 5);
+            //    DamageRod(4, 5);
+            //}
+
             if (keyCode == KeyCode.Return && AltPressed == true)
             {
                 Debug.Log("Switch full screen");
+            }
+
+            // game over : pressing enter leads to main menu
+            if (state == GameState.GameOver)
+            {
+                if(keyCode == KeyCode.Return|| keyCode == KeyCode.Escape)
+                    ReturnToMainMenu();
             }
 
         }
@@ -103,6 +153,8 @@ namespace FPSTemplate
             if (EventManager != null)
             {
                 EventManager.OnDataManagerLoaded -= DataManagerLoaded;
+                EventManager.OnKeyPress -= KeyPressed;
+                EventManager.OnKeyReleased -= KeyReleased;
             }
             else
             {

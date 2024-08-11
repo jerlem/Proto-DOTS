@@ -94,7 +94,7 @@ namespace FPSTemplate
             {
                 if (Input.GetKeyDown(keyCode))
                     OnKeyPress?.Invoke(keyCode);
-
+                 
                 if (Input.GetKeyUp(keyCode))
                     OnKeyReleased?.Invoke(keyCode);
             }
