@@ -1,8 +1,4 @@
-using System.Globalization;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static Unity.VisualScripting.Member;
 
 namespace FPSTemplate
 {
@@ -144,7 +140,18 @@ namespace FPSTemplate
         /// <param name="pressed"></param>
         private void HandleKey(KeyCode keyCode, bool pressed)
         {
-           
+            if (keyCode == KeyCode.LeftArrow)
+                UpdateLookDirection(-10f, 0f);
+
+            if (keyCode == KeyCode.UpArrow)
+                UpdateLookDirection(0f, -10f);
+
+            if (keyCode == KeyCode.DownArrow)
+                UpdateLookDirection(0f, 10f);
+
+            if (keyCode == KeyCode.RightArrow)
+                UpdateLookDirection(10f, 0f);
+
         }
 
         //void SetMovementKeys()
@@ -248,13 +255,24 @@ namespace FPSTemplate
         }
 
 
-        private void UpdateLookDirection()
+        private void UpdateLookDirection(float x=0f, float y=0f)
         {
-            float mouseX = Input.GetAxis("Mouse X") * horizontalSensivity * Time.deltaTime;
-            float mouseY = Input.GetAxis("Mouse Y") * verticalSensivity * Time.deltaTime;
+            float rotateX;
+            float rotateY;
 
-            rotationY += mouseX;
-            rotationX += mouseY; // cam
+            if (x == 0f && y == 0f)
+            {
+                rotateX = Input.GetAxis("Mouse X") * horizontalSensivity * Time.deltaTime;
+                rotateY = Input.GetAxis("Mouse Y") * verticalSensivity * Time.deltaTime;
+            }
+            else
+            {
+                rotateX = x;
+                rotateY = y;
+            }
+
+            rotationY += rotateX;
+            rotationX += rotateY; // cam
 
             rotationX = Mathf.Clamp(rotationX, -50f, 50f);
 
