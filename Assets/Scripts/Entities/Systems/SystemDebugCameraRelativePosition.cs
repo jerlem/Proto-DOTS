@@ -10,8 +10,7 @@ partial struct SystemDebugCameraRelativePosition : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<ComponentCameraRelativePosition>();
-        
+        state.RequireForUpdate<ComponentCameraRelativePosition>();        
     }
 
     [BurstCompile]
@@ -46,7 +45,7 @@ partial struct SystemDebugCameraRelativePosition : ISystem
 
             transform.ValueRW = localToWorld;
 
-            Debug.Log("cam pos ->" + camPosition);
+            //Debug.Log("cam pos ->" + camPosition);
         }
     }
 }

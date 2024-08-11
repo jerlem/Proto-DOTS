@@ -29,7 +29,7 @@ partial struct SystemShootAtFlock : ISystem
         var shotFires = shotFireQuery.ToComponentDataArray<ComponentShotFire>(state.WorldUpdateAllocator);
         // Create a query to find all entities with ComponentFlockingLife
         var flockingLifeQuery = state.GetEntityQuery(ComponentType.ReadWrite<ComponentFlockingLife>());
-        var flockingLifeEntities = flockingLifeQuery.ToEntityArray(state.WorldUpdateAllocator);
+        NativeArray<Entity> flockingLifeEntities = flockingLifeQuery.ToEntityArray(state.WorldUpdateAllocator);
         var flockingLifes = flockingLifeQuery.ToComponentDataArray<ComponentFlockingLife>(state.WorldUpdateAllocator);
 
         // Create a job to process the entities
