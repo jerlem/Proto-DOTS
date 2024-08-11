@@ -92,6 +92,8 @@ namespace SlimUI.ModernMenu{
 			SetThemeColors();
 		}
 
+		
+
 		void SetThemeColors()
 		{
 			switch (theme)
@@ -119,7 +121,6 @@ namespace SlimUI.ModernMenu{
 
 		public void ToogleFullScreen()
 		{
-            // Toggle fullscreen
             Screen.fullScreen = !Screen.fullScreen;
         }
 

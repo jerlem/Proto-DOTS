@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace FPSTemplate
 {
@@ -8,6 +10,9 @@ namespace FPSTemplate
         public static EventManager EventManager;
 
         public static PlayerController PlayerController;
+
+        public bool CtrlPressed { get; private set; } = false;
+        public bool AltPressed { get; private set; } = false; 
 
         public void SetGameState(GameState state)
         {
@@ -23,6 +28,9 @@ namespace FPSTemplate
             // Event Manager
             EventManager = new EventManager();
             EventManager.OnDataManagerLoaded += DataManagerLoaded;
+
+            GameManager.EventManager.OnKeyPress += KeyPressed;
+            GameManager.EventManager.OnKeyReleased += KeyReleased;
 
             // Data Manager
             DataManager = new DataManager();
@@ -47,6 +55,45 @@ namespace FPSTemplate
         public void DataManagerLoaded()
         {
         }
+
+        public void KeyPressed(KeyCode keyCode)
+        {
+            if (keyCode == KeyCode.LeftControl || keyCode == KeyCode.RightControl)
+                CtrlPressed = true;
+
+            if (keyCode == KeyCode.LeftAlt || keyCode == KeyCode.RightAlt)
+                AltPressed = true;
+
+            if (keyCode == KeyCode.Escape)
+                ReturnToMainMenu();
+
+            if (keyCode == KeyCode.Return && AltPressed == true)
+            {
+                Debug.Log("Switch full screen");
+            }
+
+        }
+
+        public void KeyReleased(KeyCode keyCode)
+        {
+            if (keyCode == KeyCode.LeftControl || keyCode == KeyCode.RightControl)
+                CtrlPressed = false;
+
+            if (keyCode == KeyCode.LeftAlt || keyCode == KeyCode.RightAlt)
+                AltPressed = false;
+        }
+        
+
+        /// <summary>
+        /// return to menu
+        /// </summary>
+        private void ReturnToMainMenu() => SceneManager.LoadScene("MainMenu");
+
+        /// <summary>
+        /// change fullscreen
+        /// </summary>
+        public void ToogleFullScreen() => Screen.fullScreen = !Screen.fullScreen;
+
 
         /// <summary>
         /// Unsuscribe events then dispose
