@@ -1,28 +1,53 @@
 using Unity.Burst;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Mathematics;
 
+[BurstCompile]
 partial struct SystemDebugCameraRelativePosition : ISystem
 {
     [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<ComponentCameraRelativePosition>();
+        
+    }
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // Query all entities with ComponentCameraRelativePosition and ComponentDebugSphere
-        foreach (var (cameraRelativePosition, transform, debugSphere) in
-                 SystemAPI.Query<RefRO<ComponentCameraRelativePosition>, RefRW<LocalTransform>, RefRO<ComponentDebugSphere>>())
+        var query = state.GetEntityQuery(ComponentType.ReadOnly<ComponentCameraRelativePosition>());
+        var cameraRelativePosition = query.ToComponentDataArray<ComponentCameraRelativePosition>(state.WorldUpdateAllocator);
+
+        var sphereQuery = SystemAPI.QueryBuilder()
+            .WithAll<ComponentDebugSphere>()
+            .WithAll<LocalToWorld>()
+            .Build();
+
+
+        float3 camPosition = float3.zero;
+        foreach (var p in cameraRelativePosition)
         {
-            // Update the position of the debug sphere based on the camera relative position
-            transform.ValueRW.Position = cameraRelativePosition.ValueRO.Position;
-            LogCameraRelativePosition(cameraRelativePosition.ValueRO.Position);
+            camPosition = p.Position;
+            break;
         }
 
-        void LogCameraRelativePosition(float3 position)
+        foreach (var (transform, debugSphere) in
+           SystemAPI.Query<RefRW<LocalToWorld>, RefRW<ComponentDebugSphere>>())
         {
-            Debug.Log($"Camera Relative Position PROUTTT: {position}");
-        }
+            var localToWorld = new LocalToWorld
+            {
+                Value = float4x4.TRS(
+                         new float3(camPosition),
+                         quaternion.identity,
+                         new float3(1.0f, 1.0f, 1.0f))
+            };
 
+            transform.ValueRW = localToWorld;
+
+            Debug.Log("cam pos ->" + camPosition);
+        }
     }
 }
 

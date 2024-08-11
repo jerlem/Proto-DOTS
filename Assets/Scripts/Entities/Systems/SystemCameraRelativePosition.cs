@@ -1,3 +1,4 @@
+using FPSTemplate;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -13,8 +14,13 @@ public partial class SystemUpdateCameraRelativePosition : SystemBase
     [BurstCompile]
     protected override void OnUpdate()
     {
+        if (!GameManager.PlayerController.isFiring)
+            return;        
+
         float3 cameraPosition = SystemCacheCameraData.CameraPosition;
-        float3 offset = SystemCacheCameraData.CameraForward * 300.0f; // Adjust 2.0f to move the crosshair closer or farther
+        cameraPosition.y -= 1.5f;
+
+        float3 offset = SystemCacheCameraData.CameraForward * 2.0f; // Adjust 2.0f to move the crosshair closer or farther
 
         // Update all entities with the ComponentCameraRelativePosition component
         foreach (var positionRef in SystemAPI.Query<RefRW<ComponentCameraRelativePosition>>())

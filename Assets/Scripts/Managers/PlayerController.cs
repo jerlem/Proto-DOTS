@@ -57,7 +57,7 @@ namespace FPSTemplate
         /*
          * Firing
          */
-        bool isFiring = false;
+        public bool isFiring = false;
 
         float minigunAceleration = 1500f;
 
